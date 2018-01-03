@@ -16,8 +16,6 @@ namespace DbAccess
 
 	    public bool CascadeOnDelete;
 
-        public bool CascadeOnUpdate;
-
 	    public bool IsNullable;
 	}
 }

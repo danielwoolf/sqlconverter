@@ -55,8 +55,7 @@ namespace DbAccess
             string sqlitePath, string password, SqlConversionHandler handler,
             SqlTableSelectionHandler selectionHandler,
             FailedViewDefinitionHandler viewFailureHandler,
-            bool createTriggers, bool createViews,
-            bool copyStructure, bool copyData)
+            bool createTriggers, bool createViews)
         {
             // Clear cancelled flag
             _cancelled = false;
@@ -66,7 +65,7 @@ namespace DbAccess
                 try
                 {
                     _isActive = true;
-                    ConvertSqlServerDatabaseToSQLiteFile(sqlServerConnString, sqlitePath, password, handler, selectionHandler, viewFailureHandler, createTriggers, createViews, copyStructure, copyData);
+                    ConvertSqlServerDatabaseToSQLiteFile(sqlServerConnString, sqlitePath, password, handler, selectionHandler, viewFailureHandler, createTriggers, createViews);
                     _isActive = false;
                     handler(true, true, 100, "Finished converting database");
                 }
@@ -96,34 +95,25 @@ namespace DbAccess
             string sqlConnString, string sqlitePath, string password, SqlConversionHandler handler,
             SqlTableSelectionHandler selectionHandler,
             FailedViewDefinitionHandler viewFailureHandler,
-            bool createTriggers, bool createViews,
-            bool copyStructure, bool copyData)
+            bool createTriggers, bool createViews)
         {
+            // Delete the target file if it exists already.
+            if (File.Exists(sqlitePath))
+                File.Delete(sqlitePath);
+
             // Read the schema of the SQL Server database into a memory structure
             DatabaseSchema ds = ReadSqlServerSchema(sqlConnString, handler, selectionHandler);
-            if (ds == null) {
-                CancelConversion();
-                CheckCancelled();
-                return;
-            }
 
             // Create the SQLite database and apply the schema
-            if (copyStructure) {
-                // Delete the target file if it exists already.
-                if (File.Exists(sqlitePath))
-                    File.Delete(sqlitePath);
-
-                CreateSQLiteDatabase(sqlitePath, ds, password, handler, viewFailureHandler, createViews);
-            }
+            CreateSQLiteDatabase(sqlitePath, ds, password, handler, viewFailureHandler, createViews);
 
             // Copy all rows from SQL Server tables to the newly created SQLite database
-            if (copyData) {
-                CopySqlServerRowsToSQLiteDB(sqlConnString, sqlitePath, ds.Tables, password, handler);
-            }
+            CopySqlServerRowsToSQLiteDB(sqlConnString, sqlitePath, ds.Tables, password, handler);
 
             // Add triggers based on foreign key constraints
-            if (createTriggers && copyData)
+            if (createTriggers)
                 AddTriggersForForeignKeys(sqlitePath, ds.Tables, password, handler);
+
         }
 
         /// <summary>
@@ -143,31 +133,31 @@ namespace DbAccess
             _log.Debug("preparing to insert tables ...");
 
             // Connect to the SQL Server database
-            using (SqlConnection SqlServerConn = new SqlConnection(sqlConnString))
+            using (SqlConnection ssconn = new SqlConnection(sqlConnString))
             {
-                SqlServerConn.Open();
+                ssconn.Open();
 
                 // Connect to the SQLite database next
-                string SQLiteConnString = CreateSQLiteConnectionString(sqlitePath, password);
-                using (SQLiteConnection SQLiteConn = new SQLiteConnection(SQLiteConnString))
+                string sqliteConnString = CreateSQLiteConnectionString(sqlitePath, password);
+                using (SQLiteConnection sqconn = new SQLiteConnection(sqliteConnString))
                 {
-                    SQLiteConn.Open();
+                    sqconn.Open();
 
                     // Go over all tables in the schema and copy their rows
                     for (int i = 0; i < schema.Count; i++)
                     {
-                        SQLiteTransaction tx = SQLiteConn.BeginTransaction();
+                        SQLiteTransaction tx = sqconn.BeginTransaction();
                         try
                         {
                             string tableQuery = BuildSqlServerTableQuery(schema[i]);
-                            SqlCommand query = new SqlCommand(tableQuery, SqlServerConn);
+                            SqlCommand query = new SqlCommand(tableQuery, ssconn);
                             using (SqlDataReader reader = query.ExecuteReader())
                             {
                                 SQLiteCommand insert = BuildSQLiteInsert(schema[i]);
                                 int counter = 0;
                                 while (reader.Read())
                                 {
-                                    insert.Connection = SQLiteConn;
+                                    insert.Connection = sqconn;
                                     insert.Transaction = tx;
                                     List<string> pnames = new List<string>();
                                     for (int j = 0; j < schema[i].Columns.Count; j++)
@@ -184,7 +174,7 @@ namespace DbAccess
                                         tx.Commit();
                                         handler(false, true, (int)(100.0 * i / schema.Count),
                                             "Added " + counter + " rows to table " + schema[i].TableName + " so far");
-                                        tx = SQLiteConn.BeginTransaction();
+                                        tx = sqconn.BeginTransaction();
                                     }
                                 } // while
                             } // using
@@ -203,7 +193,6 @@ namespace DbAccess
                         } // catch
                     }
                 } // using
-                SqlConnection.ClearPool(SqlServerConn);
             } // using
         }
 
@@ -273,16 +262,14 @@ namespace DbAccess
 
                 case DbType.String:
                     if (val is Guid)
-                        return ((Guid)val).ToString().ToUpper();
+                        return ((Guid)val).ToString();
                     break;
 
                 case DbType.Guid:
-                    if (!(val is string))
-                        return val.ToString().ToUpper();
-                    //if (val is string)
-                    //    return ParseStringAsGuid((string)val);
-                    //if (val is byte[])
-                    //    return ParseBlobAsGuid((byte[])val);
+                    if (val is string)
+                        return ParseStringAsGuid((string)val);
+                    if (val is byte[])
+                        return ParseBlobAsGuid((byte[])val);
                     break;
 
                 case DbType.Binary:
@@ -298,36 +285,36 @@ namespace DbAccess
             return val;
         }
 
-        //private static Guid ParseBlobAsGuid(byte[] blob)
-        //{
-        //    byte[] data = blob;
-        //    if (blob.Length > 16)
-        //    {
-        //        data = new byte[16];
-        //        for (int i = 0; i < 16; i++)
-        //            data[i] = blob[i];
-        //    }
-        //    else if (blob.Length < 16)
-        //    {
-        //        data = new byte[16];
-        //        for (int i = 0; i < blob.Length; i++)
-        //            data[i] = blob[i];
-        //    }
+        private static Guid ParseBlobAsGuid(byte[] blob)
+        {
+            byte[] data = blob;
+            if (blob.Length > 16)
+            {
+                data = new byte[16];
+                for (int i = 0; i < 16; i++)
+                    data[i] = blob[i];
+            }
+            else if (blob.Length < 16)
+            {
+                data = new byte[16];
+                for (int i = 0; i < blob.Length; i++)
+                    data[i] = blob[i];
+            }
 
-        //    return new Guid(data);
-        //}
+            return new Guid(data);
+        }
 
-        //private static Guid ParseStringAsGuid(string str)
-        //{
-        //    try
-        //    {
-        //        return new Guid(str);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Guid.Empty;
-        //    } // catch
-        //}
+        private static Guid ParseStringAsGuid(string str)
+        {
+            try
+            {
+                return new Guid(str);
+            }
+            catch (Exception ex)
+            {
+                return Guid.Empty;
+            } // catch
+        }
 
         /// <summary>
         /// Creates a command object needed to insert values into a specific SQLite table.
@@ -427,9 +414,8 @@ namespace DbAccess
                 return DbType.DateTime;
             if (cs.ColumnType == "nchar" || cs.ColumnType == "char")
                 return DbType.String;
-            if (cs.ColumnType == "uniqueidentifier" || cs.ColumnType == "guid" || cs.ColumnType == "uuid" || cs.ColumnType == "uuidtext")
-                //return DbType.Guid;
-                return DbType.String;
+            if (cs.ColumnType == "uniqueidentifier" || cs.ColumnType == "guid")
+                return DbType.Guid;
             if (cs.ColumnType == "xml")
                 return DbType.String;
             if (cs.ColumnType == "sql_variant")
@@ -480,10 +466,10 @@ namespace DbAccess
             _log.Debug("SQLite file was created successfully at [" + sqlitePath + "]");
 
             // Connect to the newly created database
-            string SQLiteConnString = CreateSQLiteConnectionString(sqlitePath, password);
-            using (SQLiteConnection SQLiteConn = new SQLiteConnection(SQLiteConnString))
+            string sqliteConnString = CreateSQLiteConnectionString(sqlitePath, password);
+            using (SQLiteConnection conn = new SQLiteConnection(sqliteConnString))
             {
-                SQLiteConn.Open();
+                conn.Open();
 
                 // Create all tables in the new database
                 int count = 0;
@@ -491,7 +477,7 @@ namespace DbAccess
                 {
                     try
                     {
-                        AddSQLiteTable(SQLiteConn, dt);
+                        AddSQLiteTable(conn, dt);
                     }
                     catch (Exception ex)
                     {
@@ -513,7 +499,7 @@ namespace DbAccess
                     {
                         try
                         {
-                            AddSQLiteView(SQLiteConn, vs, viewFailureHandler);
+                            AddSQLiteView(conn, vs, viewFailureHandler);
                         }
                         catch (Exception ex)
                         {
@@ -533,17 +519,17 @@ namespace DbAccess
             _log.Debug("finished adding all table/view schemas for SQLite database");
         }
 
-        private static void AddSQLiteView(SQLiteConnection SQLiteConn, ViewSchema vs, FailedViewDefinitionHandler handler)
+        private static void AddSQLiteView(SQLiteConnection conn, ViewSchema vs, FailedViewDefinitionHandler handler)
         {
             // Prepare a CREATE VIEW DDL statement
             string stmt = vs.ViewSQL;
             _log.Info("\n\n" + stmt + "\n\n");
 
             // Execute the query in order to actually create the view.
-            SQLiteTransaction tx = SQLiteConn.BeginTransaction();
+            SQLiteTransaction tx = conn.BeginTransaction();
             try
             {
-                SQLiteCommand cmd = new SQLiteCommand(stmt, SQLiteConn, tx);
+                SQLiteCommand cmd = new SQLiteCommand(stmt, conn, tx);
                 cmd.ExecuteNonQuery();
 
                 tx.Commit();
@@ -567,7 +553,7 @@ namespace DbAccess
                     {
                         // Try to re-create the view with the user-supplied view definition SQL
                         updated.ViewSQL = sql;
-                        AddSQLiteView(SQLiteConn, updated, handler);
+                        AddSQLiteView(conn, updated, handler);
                     }
                 }
                 else
@@ -580,7 +566,7 @@ namespace DbAccess
         /// </summary>
         /// <param name="conn">The SQLite connection</param>
         /// <param name="dt">The table schema object for the table to be generated.</param>
-        private static void AddSQLiteTable(SQLiteConnection SQLiteConn, TableSchema dt)
+        private static void AddSQLiteTable(SQLiteConnection conn, TableSchema dt)
         {
             // Prepare a CREATE TABLE DDL statement
             string stmt = BuildCreateTableQuery(dt);
@@ -588,7 +574,7 @@ namespace DbAccess
             _log.Info("\n\n" + stmt + "\n\n");
 
             // Execute the query in order to actually create the table.
-            SQLiteCommand cmd = new SQLiteCommand(stmt, SQLiteConn);
+            SQLiteCommand cmd = new SQLiteCommand(stmt, conn);
             cmd.ExecuteNonQuery();
         }
 
@@ -639,12 +625,8 @@ namespace DbAccess
                     ForeignKeySchema foreignKey = ts.ForeignKeys[i];
                     string stmt = string.Format("    FOREIGN KEY ([{0}])\n        REFERENCES [{1}]([{2}])",
                                 foreignKey.ColumnName, foreignKey.ForeignTableName, foreignKey.ForeignColumnName);
-                    sb.Append(stmt);
-                    if (foreignKey.CascadeOnDelete)
-                        sb.Append(" ON DELETE CASCADE");
-                    if (foreignKey.CascadeOnUpdate)
-                        sb.Append(" ON UPDATE CASCADE");
 
+                    sb.Append(stmt);
                     if (i < ts.ForeignKeys.Count - 1)
                         sb.Append(",\n");
                 } // for
@@ -817,15 +799,15 @@ namespace DbAccess
         {
             // First step is to read the names of all tables in the database
             List<TableSchema> tables = new List<TableSchema>();
-            using (SqlConnection SqlServerConn = new SqlConnection(connString))
+            using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlServerConn.Open();
+                conn.Open();
 
                 List<string> tableNames = new List<string>();
                 List<string> tblschema = new List<string>();
 
                 // This command will read the names of all tables in the database
-                SqlCommand cmd = new SqlCommand(@"select * from INFORMATION_SCHEMA.TABLES  where TABLE_TYPE = 'BASE TABLE'", SqlServerConn);
+                SqlCommand cmd = new SqlCommand(@"select * from INFORMATION_SCHEMA.TABLES  where TABLE_TYPE = 'BASE TABLE'", conn);
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -845,8 +827,8 @@ namespace DbAccess
                 {
                     string tname = tableNames[i];
                     string tschma = tblschema[i];
-                    TableSchema ts = CreateTableSchema(SqlServerConn, tname, tschma);
-                    CreateForeignKeySchema(SqlServerConn, ts);
+                    TableSchema ts = CreateTableSchema(conn, tname, tschma);
+                    CreateForeignKeySchema(conn, ts);
                     tables.Add(ts);
                     count++;
                     CheckCancelled();
@@ -854,7 +836,6 @@ namespace DbAccess
 
                     _log.Debug("parsed table schema for [" + tname + "]");
                 } // foreach
-                SqlConnection.ClearPool(SqlServerConn);
             } // using
 
             _log.Debug("finished parsing all tables in SQL Server schema");
@@ -871,11 +852,11 @@ namespace DbAccess
 
             // Continue and read all of the views in the database
             List<ViewSchema> views = new List<ViewSchema>();
-            using (SqlConnection SqlServerConn = new SqlConnection(connString))
+            using (SqlConnection conn = new SqlConnection(connString))
             {
-                SqlServerConn.Open();
+                conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT TABLE_NAME, VIEW_DEFINITION  from INFORMATION_SCHEMA.VIEWS", SqlServerConn);
+                SqlCommand cmd = new SqlCommand(@"SELECT TABLE_NAME, VIEW_DEFINITION  from INFORMATION_SCHEMA.VIEWS", conn);
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     int count = 0;
@@ -902,7 +883,7 @@ namespace DbAccess
                         _log.Debug("parsed view schema for [" + vs.ViewName + "]");
                     } // while
                 } // using
-                SqlConnection.ClearPool(SqlServerConn);
+
             } // using
 
             DatabaseSchema ds = new DatabaseSchema();
@@ -927,7 +908,7 @@ namespace DbAccess
         /// <param name="conn">The SQL Server connection to use</param>
         /// <param name="tableName">The name of the table for which we wants to create the table schema.</param>
         /// <returns>A table schema object that represents our knowledge of the table schema</returns>
-        private static TableSchema CreateTableSchema(SqlConnection SqlServerConn, string tableName, string tschma)
+        private static TableSchema CreateTableSchema(SqlConnection conn, string tableName, string tschma)
         {
             TableSchema res = new TableSchema();
             res.TableName = tableName;
@@ -937,7 +918,7 @@ namespace DbAccess
                 @" (columnproperty(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity')) AS [IDENT], " +
                 @"CHARACTER_MAXIMUM_LENGTH AS CSIZE " +
                 "FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "' ORDER BY " +
-                "ORDINAL_POSITION ASC", SqlServerConn);
+                "ORDINAL_POSITION ASC", conn);
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -988,8 +969,7 @@ namespace DbAccess
                     else if (dataType == "xml")
                         dataType = "varchar";
                     else if (dataType == "uniqueidentifier")
-                        //dataType = "uuid";
-                        dataType = "uuidtext";
+                        dataType = "guid";
                     else if (dataType == "ntext")
                         dataType = "text";
                     else if (dataType == "nchar")
@@ -1017,7 +997,7 @@ namespace DbAccess
             } // using
 
             // Find PRIMARY KEY information
-            SqlCommand cmd2 = new SqlCommand(@"EXEC sp_pkeys '" + tableName + "'", SqlServerConn);
+            SqlCommand cmd2 = new SqlCommand(@"EXEC sp_pkeys '" + tableName + "'", conn);
             using (SqlDataReader reader = cmd2.ExecuteReader())
             {
                 res.PrimaryKey = new List<string>();
@@ -1030,7 +1010,7 @@ namespace DbAccess
 
             // Find COLLATE information for all columns in the table
             SqlCommand cmd4 = new SqlCommand(
-                @"EXEC sp_tablecollations '" + tschma + "." + tableName + "'", SqlServerConn);
+                @"EXEC sp_tablecollations '" + tschma + "." + tableName + "'", conn);
             using (SqlDataReader reader = cmd4.ExecuteReader())
             {
                 while (reader.Read())
@@ -1065,7 +1045,7 @@ namespace DbAccess
             {
                 // Find index information
                 SqlCommand cmd3 = new SqlCommand(
-                    @"exec sp_helpindex '" + tschma + "." + tableName + "'", SqlServerConn);
+                    @"exec sp_helpindex '" + tschma + "." + tableName + "'", conn);
                 using (SqlDataReader reader = cmd3.ExecuteReader())
                 {
                     res.Indexes = new List<IndexSchema>();
@@ -1163,7 +1143,7 @@ namespace DbAccess
         /// </summary>
         /// <param name="conn">The SQL Server connection to use</param>
         /// <param name="ts">The table schema to whom foreign key schema should be added to</param>
-        private static void CreateForeignKeySchema(SqlConnection SqlServerConn, TableSchema ts)
+        private static void CreateForeignKeySchema(SqlConnection conn, TableSchema ts)
         {
             ts.ForeignKeys = new List<ForeignKeySchema>();
 
@@ -1173,7 +1153,6 @@ namespace DbAccess
                 @"  ForeignTableName  = PK.TABLE_NAME, " +
                 @"  ForeignColumnName = PT.COLUMN_NAME, " +
                 @"  DeleteRule = C.DELETE_RULE, " +
-                @"  UpdateRule = C.UPDATE_RULE, " +
                 @"  IsNullable = COL.IS_NULLABLE " +
                 @"FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS C " +
                 @"INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS FK ON C.CONSTRAINT_NAME = FK.CONSTRAINT_NAME " +
@@ -1188,7 +1167,7 @@ namespace DbAccess
                 @"  ) " +
                 @"PT ON PT.TABLE_NAME = PK.TABLE_NAME " +
                 @"INNER JOIN INFORMATION_SCHEMA.COLUMNS AS COL ON CU.COLUMN_NAME = COL.COLUMN_NAME AND FK.TABLE_NAME = COL.TABLE_NAME " +
-                @"WHERE FK.Table_NAME='" + ts.TableName + "'", SqlServerConn);
+                @"WHERE FK.Table_NAME='" + ts.TableName + "'", conn);
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
@@ -1199,7 +1178,6 @@ namespace DbAccess
                     fkc.ForeignTableName = (string)reader["ForeignTableName"];
                     fkc.ForeignColumnName = (string)reader["ForeignColumnName"];
                     fkc.CascadeOnDelete = (string)reader["DeleteRule"] == "CASCADE";
-                    fkc.CascadeOnUpdate = (string)reader["UpdateRule"] == "CASCADE";
                     fkc.IsNullable = (string)reader["IsNullable"] == "YES";
                     fkc.TableName = ts.TableName;
                     ts.ForeignKeys.Add(fkc);
@@ -1296,16 +1274,16 @@ namespace DbAccess
             string password, SqlConversionHandler handler)
         {
             // Connect to the newly created database
-            string SQLiteConnString = CreateSQLiteConnectionString(sqlitePath, password);
-            using (SQLiteConnection SQLiteConn = new SQLiteConnection(SQLiteConnString))
+            string sqliteConnString = CreateSQLiteConnectionString(sqlitePath, password);
+            using (SQLiteConnection conn = new SQLiteConnection(sqliteConnString))
             {
-                SQLiteConn.Open();
+                conn.Open();
                 // foreach
                 foreach (TableSchema dt in schema)
                 {
                     try
                     {
-                        AddTableTriggers(SQLiteConn, dt);
+                        AddTableTriggers(conn, dt);
                     }
                     catch (Exception ex)
                     {
@@ -1319,12 +1297,12 @@ namespace DbAccess
             _log.Debug("finished adding triggers to schema");
         }
 
-        private static void AddTableTriggers(SQLiteConnection SQLiteConn, TableSchema dt)
+        private static void AddTableTriggers(SQLiteConnection conn, TableSchema dt)
         {
             IList<TriggerSchema> triggers = TriggerBuilder.GetForeignKeyTriggers(dt);
             foreach (TriggerSchema trigger in triggers)
             {
-                SQLiteCommand cmd = new SQLiteCommand(WriteTriggerSchema(trigger), SQLiteConn);
+                SQLiteCommand cmd = new SQLiteCommand(WriteTriggerSchema(trigger), conn);
                 cmd.ExecuteNonQuery();
             }
         }
