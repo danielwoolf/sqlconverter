@@ -1,4 +1,5 @@
 # sqlconverter
+### Convert SQL Server database to SQLite 
 
 ### Introduction
 This code was [originally published by Liron Levi](http://www.codeproject.com/Articles/26932/Convert-SQL-Server-DB-to-SQLite-DB) whose release notes are reproduced below. 
