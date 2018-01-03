@@ -997,7 +997,7 @@ namespace DbAccess
             } // using
 
             // Find PRIMARY KEY information
-            SqlCommand cmd2 = new SqlCommand(@"EXEC sp_pkeys '" + tableName + "'", conn);
+            SqlCommand cmd2 = new SqlCommand(@"EXEC sp_pkeys '" + tableName + "'" + ", " + tschma, conn);
             using (SqlDataReader reader = cmd2.ExecuteReader())
             {
                 res.PrimaryKey = new List<string>();

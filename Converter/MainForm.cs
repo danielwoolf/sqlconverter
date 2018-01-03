@@ -279,6 +279,26 @@ namespace Converter
 
         #region Private Variables
         private bool _shouldExit = false;
-        #endregion        
+        #endregion
+
+        private void cbxTriggers_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cbxCreateViews_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

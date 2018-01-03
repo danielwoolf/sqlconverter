@@ -28,6 +28,7 @@ namespace Converter
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.grdTables = new System.Windows.Forms.DataGridView();
             this.colInclude = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colTableName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -44,9 +45,12 @@ namespace Converter
             this.grdTables.AllowUserToDeleteRows = false;
             this.grdTables.AllowUserToResizeColumns = false;
             this.grdTables.AllowUserToResizeRows = false;
-            this.grdTables.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.grdTables.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.grdTables.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.grdTables.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.grdTables.BackgroundColor = System.Drawing.Color.White;
             this.grdTables.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.grdTables.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -56,7 +60,7 @@ namespace Converter
             this.grdTables.Name = "grdTables";
             this.grdTables.RowHeadersVisible = false;
             this.grdTables.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.grdTables.Size = new System.Drawing.Size(407, 328);
+            this.grdTables.Size = new System.Drawing.Size(407, 532);
             this.grdTables.TabIndex = 0;
             // 
             // colInclude
@@ -78,7 +82,7 @@ namespace Converter
             // btnSelectAll
             // 
             this.btnSelectAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSelectAll.Location = new System.Drawing.Point(12, 346);
+            this.btnSelectAll.Location = new System.Drawing.Point(12, 550);
             this.btnSelectAll.Name = "btnSelectAll";
             this.btnSelectAll.Size = new System.Drawing.Size(75, 23);
             this.btnSelectAll.TabIndex = 1;
@@ -89,7 +93,7 @@ namespace Converter
             // btnDeselectAll
             // 
             this.btnDeselectAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnDeselectAll.Location = new System.Drawing.Point(93, 346);
+            this.btnDeselectAll.Location = new System.Drawing.Point(93, 550);
             this.btnDeselectAll.Name = "btnDeselectAll";
             this.btnDeselectAll.Size = new System.Drawing.Size(89, 23);
             this.btnDeselectAll.TabIndex = 2;
@@ -101,7 +105,7 @@ namespace Converter
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(343, 346);
+            this.btnCancel.Location = new System.Drawing.Point(343, 550);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(76, 23);
             this.btnCancel.TabIndex = 3;
@@ -112,7 +116,7 @@ namespace Converter
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(261, 346);
+            this.btnOK.Location = new System.Drawing.Point(261, 550);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(76, 23);
             this.btnOK.TabIndex = 4;
@@ -125,8 +129,10 @@ namespace Converter
             this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(433, 377);
+            this.ClientSize = new System.Drawing.Size(433, 581);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnDeselectAll);

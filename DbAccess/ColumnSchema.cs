@@ -19,6 +19,8 @@ namespace DbAccess
 
         public string DefaultValue;
 
+        public bool isPrimaryKey;
+
         public bool IsIdentity;
 
         public bool? IsCaseSensitivite = null;

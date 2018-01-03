@@ -97,6 +97,8 @@ namespace Converter
                 grdTables.Rows.Add(true, table.TableName);
                 grdTables.Rows[grdTables.Rows.Count - 1].Tag = table;
             } // foreach
+
+            grdTables.Sort(grdTables.Columns[1], ListSortDirection.Ascending); //sort by table name
         }
         #endregion
     }

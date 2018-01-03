@@ -65,33 +65,34 @@ namespace Converter
             // 
             this.txtSqlAddress.Location = new System.Drawing.Point(154, 17);
             this.txtSqlAddress.Name = "txtSqlAddress";
-            this.txtSqlAddress.Size = new System.Drawing.Size(429, 20);
+            this.txtSqlAddress.Size = new System.Drawing.Size(465, 20);
             this.txtSqlAddress.TabIndex = 1;
             this.txtSqlAddress.TextChanged += new System.EventHandler(this.txtSqlAddress_TextChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 101);
+            this.label2.Location = new System.Drawing.Point(9, 164);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(135, 13);
             this.label2.TabIndex = 10;
             this.label2.Text = "SQLite Database File Path:";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // txtSQLitePath
             // 
-            this.txtSQLitePath.Location = new System.Drawing.Point(154, 98);
+            this.txtSQLitePath.Location = new System.Drawing.Point(151, 161);
             this.txtSQLitePath.Name = "txtSQLitePath";
-            this.txtSQLitePath.Size = new System.Drawing.Size(429, 20);
-            this.txtSQLitePath.TabIndex = 11;
+            this.txtSQLitePath.Size = new System.Drawing.Size(468, 20);
+            this.txtSQLitePath.TabIndex = 7;
             this.txtSQLitePath.TextChanged += new System.EventHandler(this.txtSQLitePath_TextChanged);
             // 
             // btnBrowseSQLitePath
             // 
-            this.btnBrowseSQLitePath.Location = new System.Drawing.Point(589, 96);
+            this.btnBrowseSQLitePath.Location = new System.Drawing.Point(624, 159);
             this.btnBrowseSQLitePath.Name = "btnBrowseSQLitePath";
             this.btnBrowseSQLitePath.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowseSQLitePath.TabIndex = 12;
+            this.btnBrowseSQLitePath.TabIndex = 8;
             this.btnBrowseSQLitePath.Text = "Browse...";
             this.btnBrowseSQLitePath.UseVisualStyleBackColor = true;
             this.btnBrowseSQLitePath.Click += new System.EventHandler(this.btnBrowseSQLitePath_Click);
@@ -99,10 +100,10 @@ namespace Converter
             // btnStart
             // 
             this.btnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnStart.Location = new System.Drawing.Point(365, 216);
+            this.btnStart.Location = new System.Drawing.Point(248, 327);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(198, 23);
-            this.btnStart.TabIndex = 17;
+            this.btnStart.Size = new System.Drawing.Size(198, 37);
+            this.btnStart.TabIndex = 13;
             this.btnStart.Text = "Start The Conversion Process";
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
@@ -116,45 +117,46 @@ namespace Converter
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 46);
+            this.label3.Location = new System.Drawing.Point(12, 111);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(58, 13);
+            this.label3.Size = new System.Drawing.Size(89, 13);
             this.label3.TabIndex = 3;
-            this.label3.Text = "Select DB:";
+            this.label3.Text = "Select Database:";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // cboDatabases
             // 
             this.cboDatabases.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboDatabases.Enabled = false;
             this.cboDatabases.FormattingEnabled = true;
-            this.cboDatabases.Location = new System.Drawing.Point(154, 43);
+            this.cboDatabases.Location = new System.Drawing.Point(154, 108);
             this.cboDatabases.Name = "cboDatabases";
-            this.cboDatabases.Size = new System.Drawing.Size(429, 21);
-            this.cboDatabases.TabIndex = 4;
+            this.cboDatabases.Size = new System.Drawing.Size(465, 21);
+            this.cboDatabases.TabIndex = 6;
             this.cboDatabases.SelectedIndexChanged += new System.EventHandler(this.cboDatabases_SelectedIndexChanged);
             // 
             // btnSet
             // 
-            this.btnSet.Location = new System.Drawing.Point(589, 15);
+            this.btnSet.Location = new System.Drawing.Point(508, 70);
             this.btnSet.Name = "btnSet";
-            this.btnSet.Size = new System.Drawing.Size(75, 23);
-            this.btnSet.TabIndex = 2;
-            this.btnSet.Text = "Set";
+            this.btnSet.Size = new System.Drawing.Size(111, 23);
+            this.btnSet.TabIndex = 5;
+            this.btnSet.Text = "Connect";
             this.btnSet.UseVisualStyleBackColor = true;
             this.btnSet.Click += new System.EventHandler(this.btnSet_Click);
             // 
             // pbrProgress
             // 
             this.pbrProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pbrProgress.Location = new System.Drawing.Point(12, 195);
+            this.pbrProgress.Location = new System.Drawing.Point(15, 300);
             this.pbrProgress.Name = "pbrProgress";
-            this.pbrProgress.Size = new System.Drawing.Size(652, 18);
+            this.pbrProgress.Size = new System.Drawing.Size(687, 18);
             this.pbrProgress.TabIndex = 16;
             // 
             // lblMessage
             // 
             this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblMessage.Location = new System.Drawing.Point(12, 177);
+            this.lblMessage.Location = new System.Drawing.Point(90, 284);
             this.lblMessage.Name = "lblMessage";
             this.lblMessage.Size = new System.Drawing.Size(529, 13);
             this.lblMessage.TabIndex = 15;
@@ -163,10 +165,10 @@ namespace Converter
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnCancel.Location = new System.Drawing.Point(569, 216);
+            this.btnCancel.Location = new System.Drawing.Point(604, 327);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(95, 23);
-            this.btnCancel.TabIndex = 18;
+            this.btnCancel.Size = new System.Drawing.Size(95, 37);
+            this.btnCancel.TabIndex = 14;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
@@ -174,97 +176,93 @@ namespace Converter
             // cbxEncrypt
             // 
             this.cbxEncrypt.AutoSize = true;
-            this.cbxEncrypt.Location = new System.Drawing.Point(15, 127);
+            this.cbxEncrypt.Location = new System.Drawing.Point(12, 190);
             this.cbxEncrypt.Name = "cbxEncrypt";
             this.cbxEncrypt.Size = new System.Drawing.Size(127, 17);
-            this.cbxEncrypt.TabIndex = 13;
+            this.cbxEncrypt.TabIndex = 9;
             this.cbxEncrypt.Text = "Encryption password:";
             this.cbxEncrypt.UseVisualStyleBackColor = true;
             this.cbxEncrypt.CheckedChanged += new System.EventHandler(this.cbxEncrypt_CheckedChanged);
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(154, 125);
+            this.txtPassword.Location = new System.Drawing.Point(151, 188);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(197, 20);
-            this.txtPassword.TabIndex = 14;
+            this.txtPassword.Size = new System.Drawing.Size(317, 20);
+            this.txtPassword.TabIndex = 10;
             this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
             // 
             // cbxIntegrated
             // 
-            this.cbxIntegrated.Checked = true;
-            this.cbxIntegrated.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbxIntegrated.Location = new System.Drawing.Point(15, 71);
+            this.cbxIntegrated.Location = new System.Drawing.Point(499, 43);
             this.cbxIntegrated.Name = "cbxIntegrated";
-            this.cbxIntegrated.Size = new System.Drawing.Size(130, 21);
-            this.cbxIntegrated.TabIndex = 5;
+            this.cbxIntegrated.Size = new System.Drawing.Size(120, 21);
+            this.cbxIntegrated.TabIndex = 4;
             this.cbxIntegrated.Text = "Integrated security";
             this.cbxIntegrated.UseVisualStyleBackColor = true;
             this.cbxIntegrated.CheckedChanged += new System.EventHandler(this.ChkIntegratedCheckedChanged);
             // 
             // txtUserDB
             // 
-            this.txtUserDB.Location = new System.Drawing.Point(189, 71);
+            this.txtUserDB.Location = new System.Drawing.Point(191, 43);
             this.txtUserDB.Name = "txtUserDB";
             this.txtUserDB.Size = new System.Drawing.Size(100, 20);
-            this.txtUserDB.TabIndex = 7;
-            this.txtUserDB.Visible = false;
+            this.txtUserDB.TabIndex = 2;
             // 
             // txtPassDB
             // 
-            this.txtPassDB.Location = new System.Drawing.Point(354, 71);
+            this.txtPassDB.Location = new System.Drawing.Point(356, 43);
             this.txtPassDB.Name = "txtPassDB";
             this.txtPassDB.PasswordChar = '*';
             this.txtPassDB.Size = new System.Drawing.Size(113, 20);
-            this.txtPassDB.TabIndex = 9;
-            this.txtPassDB.Visible = false;
+            this.txtPassDB.TabIndex = 3;
             // 
             // lblUser
             // 
             this.lblUser.AutoSize = true;
-            this.lblUser.Location = new System.Drawing.Point(151, 74);
+            this.lblUser.Location = new System.Drawing.Point(153, 46);
             this.lblUser.Name = "lblUser";
             this.lblUser.Size = new System.Drawing.Size(32, 13);
             this.lblUser.TabIndex = 6;
             this.lblUser.Text = "User:";
-            this.lblUser.Visible = false;
             // 
             // lblPassword
             // 
             this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(295, 74);
+            this.lblPassword.Location = new System.Drawing.Point(297, 46);
             this.lblPassword.Name = "lblPassword";
             this.lblPassword.Size = new System.Drawing.Size(56, 13);
             this.lblPassword.TabIndex = 8;
             this.lblPassword.Text = "Password:";
-            this.lblPassword.Visible = false;
             // 
             // cbxTriggers
             // 
             this.cbxTriggers.AutoSize = true;
-            this.cbxTriggers.Location = new System.Drawing.Point(15, 151);
+            this.cbxTriggers.Location = new System.Drawing.Point(12, 214);
             this.cbxTriggers.Name = "cbxTriggers";
             this.cbxTriggers.Size = new System.Drawing.Size(201, 17);
-            this.cbxTriggers.TabIndex = 19;
+            this.cbxTriggers.TabIndex = 11;
             this.cbxTriggers.Text = "Create triggers enforcing foreign keys";
             this.cbxTriggers.UseVisualStyleBackColor = true;
+            this.cbxTriggers.CheckedChanged += new System.EventHandler(this.cbxTriggers_CheckedChanged);
             // 
             // cbxCreateViews
             // 
             this.cbxCreateViews.AutoSize = true;
-            this.cbxCreateViews.Location = new System.Drawing.Point(222, 151);
+            this.cbxCreateViews.Location = new System.Drawing.Point(219, 214);
             this.cbxCreateViews.Name = "cbxCreateViews";
             this.cbxCreateViews.Size = new System.Drawing.Size(249, 17);
-            this.cbxCreateViews.TabIndex = 20;
+            this.cbxCreateViews.TabIndex = 12;
             this.cbxCreateViews.Text = "Try to create views (works only in simple cases)";
             this.cbxCreateViews.UseVisualStyleBackColor = true;
+            this.cbxCreateViews.CheckedChanged += new System.EventHandler(this.cbxCreateViews_CheckedChanged);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(676, 242);
+            this.ClientSize = new System.Drawing.Size(704, 376);
             this.Controls.Add(this.cbxCreateViews);
             this.Controls.Add(this.cbxTriggers);
             this.Controls.Add(this.txtPassDB);
