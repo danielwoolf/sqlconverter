@@ -11,6 +11,7 @@ using log4net;
 
 namespace DbAccess
 {
+    // Daniel Woolf version
     /// <summary>
     /// This class is resposible to take a single SQL Server database
     /// and convert it to an SQLite database file.
